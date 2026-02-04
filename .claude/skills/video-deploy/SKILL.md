@@ -102,7 +102,8 @@ Look for: vercel.json, netlify.toml, fly.toml, railway.json, render.yaml
 | Emergency | `routes/emergency.md` | Demo tomorrow, need speed |
 | Transcoding | `routes/transcoding.md` | .mov or non-web formats |
 | User Uploads | `routes/user-uploads.md` | Users submit videos |
-| R2 Setup | `routes/r2-setup.md` | Standard public hosting |
+| R2 Setup | `routes/r2-setup.md` | Managed hosting (Cloudflare) |
+| Self-Host | `routes/self-host.md` | Own the stack (VPS, MinIO, Ceph) |
 | Signed URLs | `routes/signed-urls.md` | Private/authenticated videos |
 | Existing S3 | `routes/existing-s3.md` | Already have AWS |
 
@@ -123,7 +124,9 @@ Has existing cloud storage?
          └─ Static videos → Who can view?
                            ├─ Anyone → How urgent?
                            │          ├─ <24h → routes/emergency.md
-                           │          └─ Normal → routes/r2-setup.md
+                           │          └─ Normal → Prefer managed or self-host?
+                           │                     ├─ Managed → routes/r2-setup.md
+                           │                     └─ Self-host → routes/self-host.md
                            └─ Private → routes/signed-urls.md
 ```
 
