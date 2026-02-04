@@ -255,3 +255,84 @@ server {
 - Cloudflare caches video, your VPS barely gets hit
 
 The managed services exist because most people don't want to think about nginx configs and disk space. But if you do, a $6/mo Hetzner box with 20TB bandwidth will outperform any free tier.
+
+### Full Self-Host: "It's All Claude Chores Anyway"
+
+For those who want to own the entire stack—distributed storage, load balancing, CDN—using open source. Yes, this is overkill for a hackathon. But if you're building infrastructure skills or have compliance/sovereignty requirements, here's the real deal:
+
+**The Stack:**
+- **Ceph** or **MinIO** - S3-compatible distributed object storage
+- **HAProxy** or **nginx** - Load balancing
+- **Varnish** or **nginx caching** - CDN layer
+- **Let's Encrypt** - TLS
+
+**MinIO (simpler S3-compatible storage):**
+```bash
+# Single node (dev/small scale)
+docker run -p 9000:9000 -p 9001:9001 \
+  -v /data:/data \
+  minio/minio server /data --console-address ":9001"
+
+# Now you have S3-compatible storage at localhost:9000
+# Use any S3 SDK/CLI with endpoint override
+```
+
+**Ceph (production-grade distributed storage):**
+```bash
+# Using cephadm (requires 3+ nodes for real HA)
+cephadm bootstrap --mon-ip <ip>
+ceph orch apply osd --all-available-devices
+ceph orch apply rgw default  # S3-compatible gateway
+```
+
+**Open source CDN with Varnish:**
+```vcl
+# /etc/varnish/default.vcl
+vcl 4.0;
+
+backend default {
+    .host = "127.0.0.1";
+    .port = "9000";  # MinIO/Ceph RGW
+}
+
+sub vcl_backend_response {
+    if (bereq.url ~ "\.(mp4|webm)$") {
+        set beresp.ttl = 30d;
+        set beresp.http.Cache-Control = "public, max-age=2592000";
+    }
+}
+```
+
+**Multi-region with HAProxy:**
+```haproxy
+# /etc/haproxy/haproxy.cfg
+frontend video_cdn
+    bind *:443 ssl crt /etc/ssl/certs/video.pem
+    default_backend origins
+
+backend origins
+    balance roundrobin
+    server origin1 10.0.1.10:9000 check
+    server origin2 10.0.2.10:9000 check backup
+```
+
+**When this makes sense:**
+- You're building platform/infrastructure skills
+- Data sovereignty requirements (GDPR, government, healthcare)
+- You already run Kubernetes/bare metal clusters
+- Cost optimization at serious scale (10TB+)
+- You enjoy this stuff
+
+**When it doesn't:**
+- You just want videos to work
+- You don't have a team to maintain it
+- Your scale doesn't justify the complexity
+- You're not already running infrastructure
+
+**Realistic cost at scale:**
+- 3x Hetzner dedicated (32TB each): ~€150/mo
+- 100TB+ usable storage with replication
+- Unlimited bandwidth (Hetzner doesn't meter)
+- Full control, no vendor, S3-compatible
+
+**The honest truth:** This is a real option if you're the kind of person who runs their own mail server. For everyone else, R2's free tier is probably fine. But if Claude can scaffold this infrastructure for you, the operational burden drops significantly—it becomes "Claude chores" rather than "hire a platform team."
