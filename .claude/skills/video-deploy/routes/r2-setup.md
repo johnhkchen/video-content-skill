@@ -1,17 +1,32 @@
 # R2 Setup: Standard Public Video Hosting
 
-Recommended path for static videos on production deployments.
+One option for static videos on production deployments.
+
+## Before You Start: Is R2 Right for You?
+
+R2 is a good default, but not the only choice. Consider alternatives if:
+
+| Situation | Maybe Use Instead |
+|-----------|-------------------|
+| Already on AWS | S3 + CloudFront (ecosystem consistency) |
+| Already on Vercel | Vercel Blob (tighter integration) |
+| Want zero config | Cloudinary (drag-and-drop, auto-transcode) |
+| Already on DigitalOcean | DO Spaces ($5/mo flat) |
+| Tiny known scale | Whatever you already have |
 
 ## Why R2?
 
-| Factor | R2 | S3 |
-|--------|----|----|
-| Egress | **$0** | ~$0.09/GB |
-| 100 viewers × 1GB video | $0 | ~$9 |
-| Free storage | 10GB | 5GB (12mo) |
-| S3 compatible | Yes | Native |
+| Factor | R2 | S3 | Vercel Blob | Cloudinary |
+|--------|----|----|-------------|------------|
+| Egress | **$0** | ~$0.09/GB | $0.15/GB | Included |
+| Free storage | 10GB | 5GB (12mo) | 1GB | 25 credits |
+| S3 compatible | Yes | Native | No | No |
+| Setup complexity | Medium | Higher | Low | Lowest |
+| Transcoding | No | No | No | **Yes** |
 
-If you already have AWS infrastructure, S3 is fine. Otherwise, R2 is cheaper for video.
+**R2's edge**: Zero egress at any scale. If your video goes viral, you don't get a surprise bill.
+
+**R2's weakness**: Another account to manage, custom domains require Cloudflare DNS, no transcoding.
 
 ---
 
@@ -145,3 +160,38 @@ Framework prefixes: see `reference/frameworks.md`
 ## Troubleshooting
 
 See `reference/troubleshooting.md` for common issues.
+
+---
+
+## Alternatives If R2 Isn't Working Out
+
+### Cloudinary (Simpler)
+If R2 setup feels like too much friction:
+1. Sign up at cloudinary.com
+2. Drag-and-drop upload in dashboard
+3. Copy URL, paste in code
+4. Done. No CLI, no credentials, no CORS config.
+
+Trade-off: 25 credits/month free tier, then paid.
+
+### Vercel Blob (If on Vercel)
+```bash
+npm i @vercel/blob
+```
+```javascript
+import { put } from '@vercel/blob';
+const { url } = await put('video.mp4', file, { access: 'public' });
+```
+Trade-off: $0.15/GB egress, but native Vercel integration.
+
+### Bunny CDN (Simple Pricing)
+- ~$0.01/GB egress
+- No free tier, but predictable costs
+- Good performance, simple dashboard
+- bunny.net
+
+### Backblaze B2 + Cloudflare (Free Egress via Alliance)
+If you want free egress but not R2:
+- Backblaze B2 storage
+- Cloudflare CDN in front (Bandwidth Alliance = free)
+- More setup, but vendor-diverse

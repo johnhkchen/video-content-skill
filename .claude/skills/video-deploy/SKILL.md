@@ -138,12 +138,64 @@ Has existing cloud storage?
 
 ---
 
+## Choosing a Provider
+
+Don't blindly recommend R2. Ask about their situation first.
+
+### Quick Comparison
+
+| Provider | Egress | Free Tier | Best For |
+|----------|--------|-----------|----------|
+| **Cloudflare R2** | $0 | 10GB storage | Unknown scale, cost-sensitive |
+| **Backblaze B2 + CF** | $0 (via alliance) | 10GB storage | Already using Backblaze |
+| **Bunny CDN** | ~$0.01/GB | Pay-as-you-go | Simple pricing, good perf |
+| **DigitalOcean Spaces** | $0.01/GB | $5/mo includes 250GB | Already on DO |
+| **Vercel Blob** | $0.15/GB | 1GB | Vercel users, simplest DX |
+| **Cloudinary** | Included | 25 credits | Need transcoding, transforms |
+| **AWS S3 + CloudFront** | ~$0.085/GB | 5GB (12mo) | Already in AWS ecosystem |
+
+### When R2 is Right
+- No existing cloud preference
+- Scale is uncertain (could spike)
+- Cost sensitivity is high
+- Want S3-compatible API
+
+### When R2 is Wrong
+- **Already on AWS/GCP/Azure** → Ecosystem friction isn't worth it
+- **Want simplest setup** → Cloudinary is drag-and-drop
+- **Need transcoding** → Cloudinary/Mux do it automatically
+- **On Vercel** → Vercel Blob has tighter integration
+- **Tiny scale, known** → Just use what you have
+
+### The Honest Trade-offs
+
+**R2 downsides:**
+- Requires Cloudflare account (another vendor)
+- Dashboard UX not as polished as AWS
+- Custom domain requires domain on Cloudflare
+- Less tooling ecosystem than S3
+
+**Why we still often recommend it:**
+- Zero egress is genuinely valuable for video
+- Free tier is generous (10GB)
+- S3-compatible = existing tools work
+- Good enough for 90% of cases
+
+**But present alternatives when:**
+- User seems hesitant about new accounts
+- User mentions existing cloud provider
+- User prioritizes simplicity over cost
+- User needs features R2 doesn't have (transcoding, etc.)
+
+---
+
 ## Key Recommendations
 
 **Default for new setup**: Cloudflare R2
 - Zero egress (critical for video)
 - 10GB free tier
 - S3-compatible
+- *But ask if they'd prefer alternatives*
 
 **For user uploads**: Cloudinary or Mux
 - Don't recommend raw R2/S3 for this
@@ -153,3 +205,6 @@ Has existing cloud storage?
 
 **If they have AWS**: Use S3, suggest CloudFront
 - Don't push migration unless cost is a problem
+
+**If they want simple**: Cloudinary
+- Higher cost but zero config
