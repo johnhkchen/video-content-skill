@@ -209,3 +209,49 @@ If you want free egress but not R2:
 - Backblaze B2 storage
 - Cloudflare CDN in front (Bandwidth Alliance = free)
 - More setup, but vendor-diverse
+
+### Self-Host: "I Want to Own the Stack"
+
+If you'd rather understand and control everything than depend on managed services:
+
+**Minimal setup: nginx + any VPS**
+```nginx
+# /etc/nginx/sites-available/videos
+server {
+    listen 443 ssl;
+    server_name videos.yourdomain.com;
+
+    root /var/www/videos;
+
+    location / {
+        add_header Access-Control-Allow-Origin *;
+        add_header Cache-Control "public, max-age=31536000";
+    }
+}
+```
+
+**Costs:**
+- $5-10/mo VPS (DigitalOcean, Hetzner, Linode)
+- Bandwidth usually 1-5TB included
+- You control everything
+
+**When this makes sense:**
+- You already run servers
+- Traffic is predictable (not viral spikes)
+- You want to learn/understand the infrastructure
+- You're allergic to vendor lock-in
+- Compliance requires knowing where data lives
+
+**When it doesn't:**
+- You don't want to manage servers
+- Traffic could spike unpredictably (VPS bandwidth overage is expensive)
+- You need a CDN for global performance
+- Uptime matters and you don't have ops experience
+
+**Middle ground: VPS + Cloudflare CDN**
+- Host origin on your VPS
+- Put Cloudflare (free tier) in front
+- Get CDN caching without giving up control of origin
+- Cloudflare caches video, your VPS barely gets hit
+
+The managed services exist because most people don't want to think about nginx configs and disk space. But if you do, a $6/mo Hetzner box with 20TB bandwidth will outperform any free tier.
