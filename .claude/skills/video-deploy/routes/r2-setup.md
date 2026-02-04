@@ -28,6 +28,20 @@ R2 is a good default, but not the only choice. Consider alternatives if:
 
 **R2's weakness**: Another account to manage, custom domains require Cloudflare DNS, no transcoding.
 
+### Why Does Cloudflare Offer Zero Egress?
+
+It's not charity—it's strategic, similar to Twilio's model:
+
+1. **Land and expand**: R2 gets you into the Cloudflare ecosystem. Once your videos are there, you'll likely add Workers, CDN, DNS, security products. Storage is the wedge.
+
+2. **They already own the pipes**: Cloudflare runs one of the world's largest networks. Your egress runs over infrastructure they've already paid for. Marginal cost is near-zero.
+
+3. **Attack AWS's profit center**: S3 egress is a cash cow for Amazon. By making it free, Cloudflare disrupts that and pulls developers away from AWS.
+
+4. **Network effects**: More content on Cloudflare = more valuable network = better peering deals = lower costs. Your videos make their network stronger.
+
+**What this means for you**: The zero egress is real and sustainable—it's not a loss-leader that'll disappear. But know that you're entering an ecosystem with natural pull toward other Cloudflare products.
+
 ---
 
 ## Step 1: Account & Bucket
